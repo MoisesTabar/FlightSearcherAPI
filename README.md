@@ -103,36 +103,39 @@ Search for flights across multiple destinations:
 
 ## 🎫 Request Parameters
 
-### Common Parameters
-
-| Parameter | Type | Description | Required |
-|-----------|------|-------------|----------|
-| `departure` | string or array | Departure airport code(s) | Yes |
-| `destination` | string or array | Destination airport code(s) | Yes |
-| `departure_date` | string or array | Departure date(s) in YYYY-MM-DD format | Yes |
-| `flight_type` | string | Class of service: `Economy`, `Premium Economy`, `Business`, or `First` | Yes |
-| `passengers` | object | Number of passengers by type | Yes |
-
-### Optional Parameters
+### Required Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `return_date` | string | Return date for round-trip flights (YYYY-MM-DD) |
-| `ticket_type` | string | Type of ticket: `Round Trip` or `Multi-City` |
-| `city_amount` | number | Number of cities for multi-city trips |
+| `departure` | string or array | Departure airport code(s). Use string for one-way/round-trip, array for multi-city |
+| `destination` | string or array | Destination airport code(s). Use string for one-way/round-trip, array for multi-city |
+| `departure_date` | string or array | Departure date(s) in YYYY-MM-DD format. Use string for one-way/round-trip, array for multi-city |
+
+### Optional Parameters (with defaults)
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `ticket_type` | string | `"One Way"` | Type of ticket: `"One Way"`, `"Round Trip"`, or `"Multi-City"` |
+| `flight_type` | string | `"Economy"` | Class of service: `"Economy"`, `"Premium Economy"`, `"Business"`, or `"First"` |
+| `passengers` | object | `{"Adult": 1}` | Number of passengers by type |
+| `return_date` | string | `null` | Return date in YYYY-MM-DD format. **Required** when `ticket_type` is `"Round Trip"` |
+| `city_amount` | integer | `null` | Number of cities. **Required** when `ticket_type` is `"Multi-City"` |
 
 ### Passenger Types
 
-- `Adult` - Adults (12+ years)
-- `Children` - Children (2-11 years)
-- `Infants On Lap` - Infants under 2 years old
+You can specify any combination of the following passenger types:
+
+- `"Adult"` - Adults (12+ years)
+- `"Children"` - Children (2-11 years)
+- `"Infants In Seat"` - Infants with their own seat
+- `"Infants On Lap"` - Infants under 2 years old (no seat)
 
 ### Flight Classes
 
-- `Economy` - Standard economy class
-- `Premium Economy` - Premium economy with extra legroom
-- `Business` - Business class
-- `First` - First class
+- `"Economy"` - Standard economy class (default)
+- `"Premium Economy"` - Premium economy with extra legroom
+- `"Business"` - Business class
+- `"First"` - First class
 
 ## 📝 Example Usage
 
