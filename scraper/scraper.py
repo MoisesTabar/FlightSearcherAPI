@@ -49,7 +49,7 @@ async def fill_search_form(page: Page, params: SearchParams) -> None:
     await page.locator(SEARCH_BUTTON_SELECTOR).first.click()
 
 
-async def extract_flights(page: Page) -> list[dict] | str:
+async def extract_flights(page: Page) -> list[dict]:
     await page.locator("li.pIav2d").first.wait_for(state='visible', timeout=30000)
     flights = await page.query_selector_all("li.pIav2d")
 
@@ -67,7 +67,7 @@ async def extract_flights(page: Page) -> list[dict] | str:
     stop=stop_after_attempt(STOP_AFTER_ATTEMPTS), 
     wait=wait_exponential(multiplier=1, min=4, max=10)
 )
-async def search_flights(params: SearchParams) -> list[Flight] | str:
+async def search_flights(params: SearchParams) -> list[Flight]:
     async with async_playwright() as playwright:
         browser = await create_browser_instance(playwright)
         page = await create_page_instance(browser)
