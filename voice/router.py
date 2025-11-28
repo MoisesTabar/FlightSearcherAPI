@@ -5,8 +5,14 @@ from dotenv import load_dotenv
 
 from voice.voice import VoiceRecognitionService
 from voice.models import VoiceSearchResponse
-from voice.constants import API_DESCRIPTION, API_RESPONSES
+from voice.constants import (
+    VOICE_RECOGNITION_ENDPOINT_DESCRIPTION,
+    VOICE_RECOGNITION_ENDPOINT_RESPONSES,
+    VOICE_FLIGHT_SEARCH_ENDPOINT_DESCRIPTION,
+    VOICE_FLIGHT_SEARCH_ENDPOINT_RESPONSES
+)
 from scraper.scraper import search_flights
+from scraper.models import SearchParams, Flight
 
 from openai import OpenAI
 
@@ -19,14 +25,12 @@ voice_service = VoiceRecognitionService(
 )
 
 @router.post(
-    "/search/voice",
+    "/voice/recognition",
     response_model=VoiceSearchResponse,
-    responses=API_RESPONSES,
-    description=API_DESCRIPTION
+    responses=VOICE_RECOGNITION_ENDPOINT_RESPONSES,
+    description=VOICE_RECOGNITION_ENDPOINT_DESCRIPTION
 )
-async def voice_search(
-    audio: UploadFile
-) -> VoiceSearchResponse:
+async def voice_recognition(audio: UploadFile) -> VoiceSearchResponse:
     audio_content = await audio.read()
     
     # Create temporary file for audio processing
@@ -46,6 +50,41 @@ async def voice_search(
             )
         
         return VoiceSearchResponse(**result)
+    finally:
+        if os.path.exists(temp_path):
+            os.unlink(temp_path)
+
+
+@router.post(
+    "/search/voice",
+    response_model=list[Flight],
+    responses=VOICE_FLIGHT_SEARCH_ENDPOINT_RESPONSES,
+    description=VOICE_FLIGHT_SEARCH_ENDPOINT_DESCRIPTION
+)
+async def voice_search(audio: UploadFile) -> list[Flight]:
+    audio_content = await audio.read()
+    
+    # Create temporary file for audio processing
+    with tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=f"_{audio.filename}"
+    ) as temp_file:
+        temp_file.write(audio_content)
+        temp_file.flush()
+        temp_path = temp_file.name
+    
+    try:
+        with open(temp_path, "rb") as audio_file:
+            result = await voice_service.process_audio(
+                file=audio_file,
+                filename=audio.filename
+            )
+
+        voice_result = VoiceSearchResponse(**result)
+        params = SearchParams(**voice_result.extracted_data.dict())
+        flights = await search_flights(params)
+
+        return flights  
     finally:
         if os.path.exists(temp_path):
             os.unlink(temp_path)
