@@ -1,14 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Literal
-
-class PassengerCounts(BaseModel):
-    Adult: int = 1
-    Children: int = 0
-    Infants_In_Seat: int = 0
-    Infants_On_Lap: int = 0
-    
-    class Config:
-        populate_by_name = True
+from scraper.types import PassengersType, PassengerType
 
 
 class ExtractedFlightData(BaseModel):
@@ -19,7 +11,7 @@ class ExtractedFlightData(BaseModel):
     ticket_type: Literal["One Way", "Round Trip", "Multi-City"] = "One Way"
     flight_type: Literal["Economy", "Premium Economy", "Business", "First"] = "Economy"
     city_amount: int | None = None
-    passengers: PassengerCounts = Field(default=PassengerCounts)
+    passengers: PassengersType = {PassengerType.adult: 1}
 
 
 class VoiceSearchResponse(BaseModel):

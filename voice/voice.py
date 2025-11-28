@@ -1,7 +1,7 @@
 import os
 import json
 from pathlib import Path
-from typing import BinaryIO, Dict, Any, Optional
+from typing import BinaryIO, Any
 from openai import (
     OpenAI,
     OpenAIError,
@@ -47,8 +47,9 @@ class VoiceRecognitionService:
         file.seek(0)
         
         if file_size > MAX_FILE_SIZE_BYTES:
+            total_size = file_size / 1024 / 1024
             raise AudioFileTooLargeError(
-                f"Audio file size ({file_size / 1024 / 1024:.2f}MB) exceeds "
+                f"Audio file size ({total_size:.2f}MB) exceeds "
                 f"maximum allowed size ({MAX_FILE_SIZE_MB}MB)"
             )
 
