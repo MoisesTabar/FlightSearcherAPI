@@ -22,10 +22,13 @@ from .constants import (
     PASSENGER_DECREMENT_BUTTON,
     PASSENGER_DONE_BUTTON,
 )
+from .logging import logger
 
 
 async def fill_multi_city_form(page: Page, params: SearchParams) -> None:
     await spawn_multi_city_selectors(page, params.city_amount)
+
+    logger.info(f"Spawned {params.city_amount} multi city selectors")
         
     total_legs = params.city_amount + FLIGHTS_AUTOMATIC_MULTI_CITY_SPAWN
 
@@ -45,19 +48,25 @@ async def fill_multi_city_form(page: Page, params: SearchParams) -> None:
         from_input = from_inputs.nth(i)
         to_input = to_inputs.nth(i)
 
-        await ensure_popover_is_closed(page)
-        await process_multi_city_selectors(from_input, params.departure[i])
-        await page.locator("li").filter(has_text=params.departure[i]).first.click()
+        departure_selectors = params.departure[i]
+        destination_selectors = params.destination[i]
 
+        logger.info(f"Setting multi-city departure cities: {departure_selectors}")
         await ensure_popover_is_closed(page)
-        await process_multi_city_selectors(to_input, params.destination[i])
-        await page.locator("li").filter(has_text=params.destination[i]).first.click()
+        await process_multi_city_selectors(from_input, departure_selectors)
+        await page.locator("li").filter(has_text=departure_selectors).first.click()
+
+        logger.info(f"Setting multi-city destination cities: {destination_selectors}")
+        await ensure_popover_is_closed(page)
+        await process_multi_city_selectors(to_input, destination_selectors)
+        await page.locator("li").filter(has_text=destination_selectors).first.click()
 
     for i in range(date_legs):
         await ensure_popover_is_closed(page)
 
         dep_input = departure_date_inputs.nth(i)
         
+        logger.info(f"Setting multi-city departure dates: {params.departure_date[i]}")
         await process_multi_city_selectors(dep_input, params.departure_date[i])
         await dep_input.press("Enter")
 
@@ -68,9 +77,11 @@ async def fill_one_way_and_round_trip_form(page: Page, params: SearchParams) -> 
 
     match params.ticket_type:
         case TicketType.round_trip:
+            logger.info("Setting round trip dates")
             await process_date_selectors(page, DEPARTURE_DATE_SELECTOR, params.departure_date)
             await process_date_selectors(page, RETURN_DATE_SELECTOR, params.return_date)
         case TicketType.one_way:
+            logger.info("Setting one way dates")
             await process_date_selectors(page, DEPARTURE_DATE_SELECTOR, params.departure_date)
 
     # If the date dialog popped open
@@ -106,6 +117,8 @@ async def fill_passenger_form(page: Page, params: SearchParams) -> None:
         container = dialog.locator(selector)
         current_amount = int(await container.get_attribute("aria-valuenow")) or 0
         target = targets[passenger_type]
+
+        logger.info(f"Selecting {target} for {passenger_type}")
 
         click_amount = target - current_amount
 
