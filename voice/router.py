@@ -56,7 +56,7 @@ async def voice_recognition(audio: UploadFile) -> VoiceSearchResponse:
 
 
 @router.post(
-    "/search/voice",
+    "/voice/search",
     response_model=list[Flight],
     responses=VOICE_FLIGHT_SEARCH_ENDPOINT_RESPONSES,
     description=VOICE_FLIGHT_SEARCH_ENDPOINT_DESCRIPTION

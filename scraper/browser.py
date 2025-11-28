@@ -1,4 +1,5 @@
 from playwright.async_api import Playwright, BrowserContext, Page, Route
+import os
 from .constants import (
     BROWSER_ARGS, 
     USER_AGENT, 
@@ -9,10 +10,15 @@ from .constants import (
 
 
 async def create_browser_instance(playwright: Playwright) -> BrowserContext:
+    brave_path = os.getenv(
+        "BRAVE_EXECUTABLE_PATH", 
+        "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
+    )
+    
     browser = await playwright.chromium.launch(
         headless=True,
         args=BROWSER_ARGS,
-        executable_path="/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+        executable_path=brave_path,
         ignore_default_args=['--disable-http-compression'],
         chromium_sandbox=False,
         handle_sigint=False,
