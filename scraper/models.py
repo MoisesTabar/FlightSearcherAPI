@@ -16,7 +16,7 @@ class SearchParams(BaseModel):
     destination: SearchParamsType
     departure_date: SearchParamsType
     return_date: SearchParamsType | None = None
-    city_amount: int | None = None
+    city_amount: int = 0 
     ticket_type: TicketType = TicketType.one_way
     flight_type: FlightType = FlightType.economy
     passengers: PassengersType = {PassengerType.adult: 1}
@@ -27,9 +27,6 @@ class SearchParams(BaseModel):
             ensure_list_with_min_len(self.departure, "departure")
             ensure_list_with_min_len(self.destination, "destination")
             ensure_list_with_min_len(self.departure_date, "departure date")
-
-            if self.city_amount is None or self.city_amount < 1:
-                raise ValueError("A city amount must be specified for multi-city tickets")
 
         if self.ticket_type == TicketType.round_trip:
             if self.return_date is None:
