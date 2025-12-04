@@ -20,6 +20,7 @@ When a user sends audio to the voice endpoint, the AI will:
     "return_date": "Return date in YYYY-MM-DD format (if mentioned)",
     "ticket_type": "One Way, Round Trip, or Multi-City",
     "flight_type": "Economy, Premium Economy, Business, or First",
+    "city_amount": "Number of cities in the trip (Multi-City only) spawns one when there are more than 2 cities",
     "passengers": {
       "Adult": 1,
       "Children": 0,
@@ -54,6 +55,7 @@ When a user sends audio to the voice endpoint, the AI will:
   - **ticket_type**: "One Way", "Round Trip", or "Multi-City"
   - **flight_type**: "Economy", "Premium Economy", "Business", or "First"
   - **passengers**: Object with passenger counts by type
+  - **city_amount**: Number of cities in the trip (Multi-City only) Google Flights spawns 2 selectors when multi-city is selected so it will spawn one when there are more than 2 cities, and it will spawn two when there are more than 3 cities so on and so forth.
 
 ### `confidence`
 - AI's confidence level in the extraction accuracy
@@ -150,11 +152,60 @@ When a user sends audio to the voice endpoint, the AI will:
     "departure_date": ["2026-03-15", "2026-03-25"],
     "ticket_type": "Multi-City",
     "flight_type": "Premium Economy",
-    "city_amount": 1,
     "passengers": {
         "Adult": 2,
         "Children": 1,
         "Infants On Lap": 1
+    }
+  },
+  "confidence": "high",
+  "missing_fields": []
+}
+```
+
+### Example 5: Multi-City
+**User says:** "Search me a multi-city flight from New York to Paris and back one adult and one child in First class
+From april 1st to april 15th 2026"
+
+**Expected Output:**
+```json
+{
+  "transcription": "Search me a multi-city flight from New York to Paris and back one adult and one child in First class From april 1st to april 15th 2026",
+  "summary": "Flight to New York and then to Paris for one adult and one child in First class on the 1st of April to the 15th of April 2026", 
+  "extracted_data": {
+    "departure": ["New York", "Paris"],
+    "destination": ["Paris", "New York"],
+    "departure_date": ["2026-04-01", "2026-04-15"],
+    "ticket_type": "Multi-City",
+    "flight_type": "First",
+    "passengers": {
+        "Adult": 1,
+        "Children": 1
+    }
+  },
+  "confidence": "high",
+  "missing_fields": []
+}
+```
+
+### Example 6: Multi-City
+**User says:** "Search me a multi-city flight from New York to Paris and to Santo Domingo one adult and two infants on lap in Economy class from january 1st, january 8th, january 15th 2026"
+
+**Expected Output:**
+```json
+{
+  "transcription": "Search me a multi-city flight from New York to Paris and to Santo Domingo one adult and two infants on lap in Economy class from january 1st, january 8th, january 15th 2026",
+  "summary": "Flight to New York and then to Paris and then to Santo Domingo for one adult and two infants on lap in Economy class from january 1st, january 8th, january 15th 2026",
+  "extracted_data": {
+    "departure": ["New York", "Paris", "Santo Domingo"],
+    "destination": ["Paris", "Santo Domingo", "New York"],
+    "departure_date": ["2026-01-01", "2026-01-08", "2026-01-15"],
+    "ticket_type": "Multi-City",
+    "flight_type": "Economy",
+    "city_amount": 1,
+    "passengers": {
+      "Adult": 1,
+      "Infants On Lap": 2
     }
   },
   "confidence": "high",
@@ -171,6 +222,7 @@ You can modify this template to change:
 2. **Field types**: Change data types or add validation rules
 3. **Examples**: Add more examples to guide the AI's extraction logic
 4. **Confidence criteria**: Define what constitutes high/medium/low confidence
-5. **Passenger types**: If provided with "Infants_In_Lap" or "Infants_In_Seat", convert to "Infants In Lap" or "Infants In Seat" in the output JSON  
+5. **Passenger types**: If provided with "Infants_In_Lap" or "Infants_In_Seat", convert to "Infants In Lap" or "Infants In Seat" in the output JSON,
+6. **Children specification**: If provided with "Children In / On Lap" or "Children In / On Seat", convert to "Infants On Lap" or "Infants In Seat" in the output JSON
 
 Save this file and the voice endpoint will use it as a reference for structuring the AI's output.

@@ -7,10 +7,10 @@ class ExtractedFlightData(BaseModel):
     departure: str | list[str]
     destination: str | list[str]
     departure_date: str | list[str]
-    return_date: str | list[str] | None
+    return_date: str | list[str] | None = None
     ticket_type: Literal["One Way", "Round Trip", "Multi-City"] = "One Way"
     flight_type: Literal["Economy", "Premium Economy", "Business", "First"] = "Economy"
-    city_amount: int | None = None
+    city_amount: int = 0 
     passengers: PassengersType = {PassengerType.adult: 1}
 
 
