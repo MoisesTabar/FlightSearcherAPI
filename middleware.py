@@ -1,4 +1,5 @@
 import logging
+from typing import Callable
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
@@ -9,73 +10,95 @@ from voice.errors import (
     StructuredExtractionError,
     VoiceRecognitionError,
 )
+from scraper.errors import (
+    NoFlightsFoundError,
+    AdultPerInfantsOnLapError,
+)
 
 logger = logging.getLogger(__name__)
 
 
-async def invalid_audio_format_handler(
-    request: Request, exc: InvalidAudioFormatError
-) -> JSONResponse:
-    logger.warning(f"Invalid audio format: {str(exc)}")
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content={
-            "error": "InvalidAudioFormat",
-            "detail": str(exc)
-        }
-    )
+def create_error_handler(
+    error_name: str,
+    status_code: int,
+    log_message: str,
+    log_level: str = "error"
+) -> Callable:
+    """
+    Factory function to create error handlers with consistent structure.
+    
+    Args:
+        error_name: The error type name to include in the response
+        status_code: HTTP status code to return
+        log_message: Message template for logging (will be formatted with exception)
+        log_level: Logging level to use ("warning", "error", or "exception")
+    
+    Returns:
+        An async error handler function
+    """
+    async def error_handler(request: Request, exc: Exception) -> JSONResponse:
+        log_func = getattr(logger, log_level)
+        log_func(f"{log_message}: {str(exc)}")
+        
+        return JSONResponse(
+            status_code=status_code,
+            content={
+                "error": error_name,
+                "detail": str(exc)
+            }
+        )
+    
+    return error_handler
 
 
-async def audio_file_too_large_handler(
-    request: Request, exc: AudioFileTooLargeError
-) -> JSONResponse:
-    logger.warning(f"Audio file too large: {str(exc)}")
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content={
-            "error": "AudioFileTooLarge",
-            "detail": str(exc)
-        }
-    )
+invalid_audio_format_handler = create_error_handler(
+    error_name="InvalidAudioFormat",
+    status_code=status.HTTP_400_BAD_REQUEST,
+    log_message="Invalid audio format",
+    log_level="warning"
+)
 
+audio_file_too_large_handler = create_error_handler(
+    error_name="AudioFileTooLarge",
+    status_code=status.HTTP_400_BAD_REQUEST,
+    log_message="Audio file too large",
+    log_level="warning"
+)
 
-async def transcription_error_handler(
-    request: Request, exc: TranscriptionError
-) -> JSONResponse:
-    logger.error(f"Transcription error: {str(exc)}")
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "error": "TranscriptionError",
-            "detail": str(exc)
-        }
-    )
+transcription_error_handler = create_error_handler(
+    error_name="TranscriptionError",
+    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    log_message="Transcription error",
+    log_level="error"
+)
 
+structured_extraction_error_handler = create_error_handler(
+    error_name="StructuredExtractionError",
+    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    log_message="Structured extraction error",
+    log_level="error"
+)
 
-async def structured_extraction_error_handler(
-    request: Request, exc: StructuredExtractionError
-) -> JSONResponse:
-    logger.error(f"Structured extraction error: {str(exc)}")
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "error": "StructuredExtractionError",
-            "detail": str(exc)
-        }
-    )
+voice_recognition_error_handler = create_error_handler(
+    error_name="VoiceRecognitionError",
+    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    log_message="Voice recognition error",
+    log_level="error"
+)
 
+no_flights_found_error_handler = create_error_handler(
+    error_name="NoFlightsFound",
+    status_code=status.HTTP_404_NOT_FOUND,
+    log_message="No flights found",
+    log_level="error"
+)
 
-async def voice_recognition_error_handler(
-    request: Request, exc: VoiceRecognitionError
-) -> JSONResponse:
-    logger.error(f"Voice recognition error: {str(exc)}")
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "error": "VoiceRecognitionError",
-            "detail": str(exc)
-        }
-    )
+adult_per_infants_on_lap_error_handler = create_error_handler(
+    error_name="AdultPerInfantsOnLapError",
+    status_code=status.HTTP_400_BAD_REQUEST,
+    log_message="Adult per infants on lap error",
+    log_level="error"
+)
 
 
 async def general_exception_handler(
@@ -97,5 +120,7 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(TranscriptionError, transcription_error_handler)
     app.add_exception_handler(StructuredExtractionError, structured_extraction_error_handler)
     app.add_exception_handler(VoiceRecognitionError, voice_recognition_error_handler)
+    app.add_exception_handler(NoFlightsFoundError, no_flights_found_error_handler)
+    app.add_exception_handler(AdultPerInfantsOnLapError, adult_per_infants_on_lap_error_handler)
     
     app.add_exception_handler(Exception, general_exception_handler)
