@@ -1,11 +1,12 @@
 from .constants import (
     RESULTS_SELECTORS,
     ADD_FLIGHT_BUTTON_SELECTOR,
-    ADULT_PER_INFANTS_ON_LAP_ERROR_SELECTOR
+    ADULT_PER_INFANTS_ON_LAP_ERROR_SELECTOR,
+    NO_FLIGHTS_ERROR_SELECTOR
 )
 
 from playwright.async_api import Page, ElementHandle, Locator
-from .errors import AdultPerInfantsOnLapError
+from .errors import AdultPerInfantsOnLapError, NoFlightsFoundError
 
 
 async def process_flight(page: ElementHandle) -> dict:
@@ -56,3 +57,11 @@ async def show_adult_per_infants_on_lap_error(page: Page) -> None:
     ).first.text_content()
     if error_message:
         raise AdultPerInfantsOnLapError(error_message)
+
+
+async def show_no_flights_found_error(page: Page) -> None:
+    error_message = await page.locator(
+        NO_FLIGHTS_ERROR_SELECTOR
+    ).first.text_content()
+    if error_message:
+        raise NoFlightsFoundError(error_message)

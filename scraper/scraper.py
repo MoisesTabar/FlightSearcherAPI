@@ -18,7 +18,7 @@ from tenacity import (
     retry_if_not_exception_type
 )
 
-from .utils import process_flight
+from .utils import process_flight, show_no_flights_found_error
 from .forms import (
     fill_multi_city_form,
     fill_one_way_and_round_trip_form,
@@ -67,12 +67,9 @@ async def fill_search_form(page: Page, params: SearchParams) -> None:
 
 
 async def extract_flights(page: Page) -> list[dict]:
+    await show_no_flights_found_error(page)
     await page.locator("li.pIav2d").first.wait_for(state='visible', timeout=30000)
     flights = await page.query_selector_all("li.pIav2d")
-
-    if not flights:
-        logger.error("No flights found")
-        raise NoFlightsFoundError(f"Found {len(flights)} flights")
 
     flight_tasks = [
         process_flight(flight) for flight in flights
@@ -86,9 +83,7 @@ async def extract_flights(page: Page) -> list[dict]:
 @retry(
     stop=stop_after_attempt(STOP_AFTER_ATTEMPTS), 
     wait=wait_exponential(multiplier=1, min=4, max=10),
-    retry=retry_if_not_exception_type(
-        (AdultPerInfantsOnLapError, NoFlightsFoundError)
-    )
+    retry=retry_if_not_exception_type((AdultPerInfantsOnLapError, NoFlightsFoundError))
 )
 async def search_flights(params: SearchParams) -> list[Flight]:
     async with async_playwright() as playwright:

@@ -38,6 +38,7 @@ SEARCH_BUTTON_SELECTOR: Literal = "button[aria-label^='Search']"
 ADD_FLIGHT_BUTTON_SELECTOR: Literal = "button[jsname='htvI8d']"
 
 ADULT_PER_INFANTS_ON_LAP_ERROR_SELECTOR: Literal = "span[jsname='Ne3sFf']"
+NO_FLIGHTS_ERROR_SELECTOR: Literal = "div.lF6CS"
 
 BROWSER_ARGS = [
     "--disable-blink-features=AutomationControlled",
