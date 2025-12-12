@@ -1,8 +1,9 @@
-from .constants import (
+from .constants.selectors import (
     RESULTS_SELECTORS,
     ADD_FLIGHT_BUTTON_SELECTOR,
     ADULT_PER_INFANTS_ON_LAP_ERROR_SELECTOR,
-    NO_FLIGHTS_ERROR_SELECTOR
+    NO_FLIGHTS_ERROR_SELECTOR,
+    FLIGHTS_SELECTOR
 )
 
 from playwright.async_api import Page, ElementHandle, Locator
@@ -60,8 +61,18 @@ async def show_adult_per_infants_on_lap_error(page: Page) -> None:
 
 
 async def show_no_flights_found_error(page: Page) -> None:
-    error_message = await page.locator(
-        NO_FLIGHTS_ERROR_SELECTOR
-    ).first.text_content()
-    if error_message:
-        raise NoFlightsFoundError(error_message)
+    # TEMPORAL SOLUTION. TODO: Should not be waiting for 1s for the user to have response
+    # TEMPORAL SOLUTION. TODO: Sometimes the search takes too long and when that happens, it does not show the error 
+    try:
+        error_element = page.locator(NO_FLIGHTS_ERROR_SELECTOR).first
+        await error_element.wait_for(state='visible', timeout=10_000)
+
+        error_message = await error_element.text_content()
+        if error_message:
+            raise NoFlightsFoundError(error_message)
+    except NoFlightsFoundError:
+        # Re-raise the NoFlightsFoundError to propagate it
+        raise
+    except Exception:
+        # If the error element doesn't exist (timeout), it means flights are present
+        pass

@@ -1,6 +1,6 @@
 from playwright.async_api import Playwright, BrowserContext, Page, Route
 import os
-from .constants import (
+from .constants.settings import (
     BROWSER_ARGS, 
     USER_AGENT, 
     FLIGHTS_PAGE_URL, 
@@ -16,7 +16,7 @@ async def create_browser_instance(playwright: Playwright) -> BrowserContext:
     )
     
     browser = await playwright.chromium.launch(
-        headless=True,
+        headless=False,
         args=BROWSER_ARGS,
         executable_path=brave_path,
         ignore_default_args=['--disable-http-compression'],
@@ -28,7 +28,7 @@ async def create_browser_instance(playwright: Playwright) -> BrowserContext:
 
     context = await browser.new_context(
         viewport={'width': 1280, 'height': 800},
-        user_agent=USER_AGENT,
+        user_agent=USER_AGENT.strip(),
         locale='en-US',
         timezone_id='UTC',
         color_scheme='light',

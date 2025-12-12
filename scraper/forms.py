@@ -9,11 +9,10 @@ from .utils import (
     process_flight_selectors,
     show_adult_per_infants_on_lap_error,
 )
-from .constants import (
+from .constants.selectors import (
     FROM_SELECTOR,
     TO_SELECTOR,
     DEPARTURE_DATE_SELECTOR,
-    FLIGHTS_AUTOMATIC_MULTI_CITY_SPAWN,
     RETURN_DATE_SELECTOR,
     ADULT_PASSENGERS_SELECTOR,
     CHILDREN_PASSENGERS_SELECTOR,
@@ -23,6 +22,7 @@ from .constants import (
     PASSENGER_DECREMENT_BUTTON,
     PASSENGER_DONE_BUTTON,
 )
+from .constants.settings import FLIGHTS_AUTOMATIC_MULTI_CITY_SPAWN
 from .logging import logger
 
 

@@ -1,12 +1,13 @@
 from .models import SearchParams, Flight
 from .types import TicketType
-from .constants import (
+from .constants.selectors import (
     FLIGHT_TYPE_SELECTOR,
-    STOP_AFTER_ATTEMPTS,
     TICKET_TYPE_SELECTOR,
     SEARCH_BUTTON_SELECTOR,
     PASSENGER_BUTTON_SELECTOR,
+    FLIGHTS_SELECTOR
 )
+from .constants.settings import STOP_AFTER_ATTEMPTS
 import asyncio
 from playwright.async_api import Page, async_playwright
 from .errors import AdultPerInfantsOnLapError, NoFlightsFoundError
@@ -68,8 +69,8 @@ async def fill_search_form(page: Page, params: SearchParams) -> None:
 
 async def extract_flights(page: Page) -> list[dict]:
     await show_no_flights_found_error(page)
-    await page.locator("li.pIav2d").first.wait_for(state='visible', timeout=30000)
-    flights = await page.query_selector_all("li.pIav2d")
+    await page.locator(FLIGHTS_SELECTOR).first.wait_for(state='visible', timeout=30000)
+    flights = await page.query_selector_all(FLIGHTS_SELECTOR)
 
     flight_tasks = [
         process_flight(flight) for flight in flights
