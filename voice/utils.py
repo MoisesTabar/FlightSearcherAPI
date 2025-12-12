@@ -1,5 +1,5 @@
 from pathlib import Path
-from voice.constants import BASE_EXTRACTION_PROMPT
+from voice.constants.prompts import BASE_EXTRACTION_PROMPT
 
 
 def build_extraction_prompt(template_content: str | None = None) -> str:

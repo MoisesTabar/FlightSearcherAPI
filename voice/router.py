@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 from voice.voice import VoiceRecognitionService
 from voice.models import VoiceSearchResponse
-from voice.constants import (
+from voice.constants.docs import (
     VOICE_RECOGNITION_ENDPOINT_DESCRIPTION,
     VOICE_RECOGNITION_ENDPOINT_RESPONSES,
     VOICE_FLIGHT_SEARCH_ENDPOINT_DESCRIPTION,

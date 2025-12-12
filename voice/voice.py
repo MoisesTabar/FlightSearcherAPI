@@ -20,7 +20,7 @@ from voice.errors import (
 
 from voice.utils import build_extraction_prompt, load_template
 
-from voice.constants import (
+from voice.constants.settings import (
     SUPPORTED_AUDIO_FORMATS,
     MAX_FILE_SIZE_MB,
     MAX_FILE_SIZE_BYTES,
