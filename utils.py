@@ -1,10 +1,7 @@
 from pathlib import Path
-from voice.constants.prompts import BASE_EXTRACTION_PROMPT
 
 
-def build_extraction_prompt(template_content: str | None = None) -> str:
-    base_prompt = BASE_EXTRACTION_PROMPT 
-    
+def build_prompt(base_prompt: str, template_content: str | None = None) -> str:
     if template_content:
         base_prompt += f"\n\nREFERENCE EXAMPLES FROM TEMPLATE:\n{template_content}"
     

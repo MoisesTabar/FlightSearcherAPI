@@ -18,7 +18,8 @@ from voice.errors import (
     StructuredExtractionError,
 )
 
-from voice.utils import build_extraction_prompt, load_template
+from voice.constants.prompts import BASE_EXTRACTION_PROMPT
+from utils import build_prompt, load_template
 
 from voice.constants.settings import (
     SUPPORTED_AUDIO_FORMATS,
@@ -89,7 +90,7 @@ class VoiceRecognitionService:
             template_path = Path(__file__).parent.parent / "voice_output_structure.md"
             template_content = load_template(template_path)
 
-            system_prompt = build_extraction_prompt(template_content)
+            system_prompt = build_prompt(BASE_EXTRACTION_PROMPT, template_content)
         
             response = self.client.chat.completions.create(
                 model="gpt-4o-mini",
