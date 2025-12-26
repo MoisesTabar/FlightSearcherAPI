@@ -27,7 +27,9 @@ from voice.constants.settings import (
 )
 
 from dataclasses import dataclass
-from voice.logging import logger
+from logging_config import get_logger
+
+logger = get_logger("voice")
 
 
 @dataclass(slots=True)

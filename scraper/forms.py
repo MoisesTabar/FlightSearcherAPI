@@ -23,7 +23,9 @@ from .constants.selectors import (
     PASSENGER_DONE_BUTTON,
 )
 from .constants.settings import FLIGHTS_AUTOMATIC_MULTI_CITY_SPAWN
-from .logging import logger
+from logging_config import get_logger
+
+logger = get_logger("scraper")
 
 
 async def fill_multi_city_form(page: Page, params: SearchParams) -> None:

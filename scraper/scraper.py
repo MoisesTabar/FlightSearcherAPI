@@ -35,7 +35,9 @@ from .browser import (
     create_browser_instance,
     create_page_instance
 )
-from .logging import logger
+from logging_config import get_logger
+
+logger = get_logger("scraper")
 
 
 async def fill_search_form(page: Page, params: SearchParams) -> None:
