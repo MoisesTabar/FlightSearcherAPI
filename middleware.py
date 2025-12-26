@@ -10,6 +10,8 @@ from voice.errors import (
     StructuredExtractionError,
     VoiceRecognitionError,
 )
+
+from text.errors import EmptyTextInputError
 from scraper.errors import (
     NoFlightsFoundError,
     AdultPerInfantsOnLapError,
@@ -101,6 +103,14 @@ adult_per_infants_on_lap_error_handler = create_error_handler(
 )
 
 
+empty_text_input_error_handler = create_error_handler(
+    error_name="EmptyTextInputError",
+    status_code=status.HTTP_400_BAD_REQUEST,
+    log_message="Empty text input",
+    log_level="warning"
+)
+
+
 async def general_exception_handler(
     request: Request, exc: Exception
 ) -> JSONResponse:
@@ -122,5 +132,6 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(VoiceRecognitionError, voice_recognition_error_handler)
     app.add_exception_handler(NoFlightsFoundError, no_flights_found_error_handler)
     app.add_exception_handler(AdultPerInfantsOnLapError, adult_per_infants_on_lap_error_handler)
-    
+    app.add_exception_handler(EmptyTextInputError, empty_text_input_error_handler)
+
     app.add_exception_handler(Exception, general_exception_handler)
